@@ -127,9 +127,16 @@ function createRouteHandler<T>(factory: ControllerFactory, constructor: Controll
   const metadatas = getRouteArgumentsMetadata(constructor, handlerName)
 
   return (req: Request, h: ResponseToolkit) => {
-    const controllerInstance = factory(constructor)
-    const handler            = controllerInstance[handlerName]
-    const args               = resolveHandlerArguments(metadatas, req, h)
+    let controllerInstance
+    try {
+        controllerInstance = factory(constructor)
+    } catch (error) {
+        console.error("an error occurred while resolving the controller")
+        console.error(error)
+        throw error
+    }
+    const handler = controllerInstance[handlerName];
+    const args    = resolveHandlerArguments(metadatas, req, h);
 
     return handler.apply(controllerInstance, args)
   }
